@@ -1,0 +1,27 @@
+AS Aerosol orale Aerosol orale
+CH Chewing gum Chewing gum
+I Inalazione Inalazione
+IA Aerosol per inalazione Aerosol per inalazione
+ID Impianto depot Impianto depot
+IN Intravescicale Intravescicale
+IP Polvere per inalazione Polvere per inalazione
+IS Impianto sottocutaneo Impianto sottocutaneo
+IZ Soluzione per inalazione Soluzione per inalazione
+LA Lamella Lamella
+N Nasale Nasale
+NN Non prevista whocc Non prevista da whocc a fronte di indicazione ddd
+O Orale Orale
+P Parenterale Parenterale
+R Rettale Rettale
+SI Soluzione per instillazione Soluzione per instillazione
+SL Sublinguale/buccale Sublinguale/buccale
+TD Transdermico Transdermico
+U Uretrale Uretrale
+UN Unguento Unguento
+V Vaginale Vaginale
+ct Cutaneo Cutaneo
+im Impianto Impianto
+lc Locale Locale
+of Oftalmico Oftalmico
+ot Otologico Otologico
+tc Tracheale Tracheale
