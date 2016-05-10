@@ -144,6 +144,7 @@ class Operatori(DateUtenti):
                 null=True, blank=True)
     telefoni = models.CharField(max_length=150, null=True, blank=True)
     contatti = models.TextField(db_column='contatti', null=True, blank=True)
+    id_spider = models.IntegerField(db_index=True, default=-1, db_column='id_spider', verbose_name='ID Spider')
     def __unicode__(self):
         return u"%s, %s" % (self.cognome, self.nome)
     class Meta:

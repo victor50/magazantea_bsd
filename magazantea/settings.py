@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'b(%_qs2$sk3_ht&amp;+@9+6=%t1kp$ey@f9$rrydsq&amp;r$-z)xbk%*'
 
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS=['*']
 #TEMPLATE_DEBUG = DEBUG
 
@@ -121,7 +121,7 @@ INSTALLED_APPS = (
     'django_cache_manager',
     'django.contrib.admin',
     'django.contrib.admindocs',
-#    'debug_toolbar',
+    'debug_toolbar',
     'magazzino',
 )
 
@@ -147,7 +147,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-#    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 
