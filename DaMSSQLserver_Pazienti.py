@@ -10,7 +10,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE','magazantea.settings')
 django.setup()
 import magazantea.settings
 #######
-import os
+
 import pymssql
 from magazzino.models import Pazienti as pazienti
 from datetime import datetime, date,timedelta
@@ -33,7 +33,7 @@ Scala,Piano,FlgAscensore,FlgParcheggio,IndirizzoAltraRes,CapAltraRes,
 CittaAltraRes,ProvinciaAltraRes,ProvinciaNascita,DistrettoASL]
 """
 
-conta1=conta2=conta3=0
+conta1=conta2=0
 
 # Determina una data antecedente di 15 gg
 data_a_ritroso=(date.today() + timedelta(days=-15)).isoformat().replace("-","/") + ' 01:00:00.000'
@@ -41,7 +41,6 @@ data_a_ritroso=(date.today() + timedelta(days=-15)).isoformat().replace("-","/")
 QUERY="SELECT * FROM XVW_PAZIENTI_MAGAZ WHERE (DataDecesso is null) OR (DataDecesso >= '"+ data_a_ritroso +"')"
 
 
-#cursor.execute("SELECT * FROM XVW_PAZIENTI_MAGAZ")
 cursor.execute(QUERY)
 
 for pz in cursor:
@@ -63,39 +62,8 @@ for pz in cursor:
     if pz[13]:
         tel = tel + ', '+ pz[13]
     cod = 'XVW@'+'0'*(10-len(str(pz[0])))+str(pz[0])
-    pazita =pazienti.objects.filter(cognome=pz[1],nome=pz[2], codgalileo__isnull=False)
-    paz = pazienti.objects.filter(cognome=pz[1],nome=pz[2]).filter(Q(codgalileo='') | Q(codgalileo__isnull=True))
-    if len(pazita) > 0:  #Se codgalileo è valorizzato (es. ITA@...,XVW@...)
-        pz
-        pazita.update(datanascita=pz[4],
-			luogo=pz[6],
-			cf=pz[3],
-			indirizzo=pz[7],
-			citta=pz[8],
-			cap=pz[9],
-			provincia=pz[10],
-			telefoni=tel,
-			email=pz[14],
-			nome_citofono=pz[18],
-			municipio=pz[19],
-			quartiere=pz[20],
-			palazzina=pz[21],
-			interno=pz[22],
-			scala=pz[23],
-			piano=pz[24],
-			ascensore=pz[25],
-			parcheggio=pz[26],
-			altro_indirizzo=pz[27],
-			altro_cap=pz[28],
-			altra_citta=pz[29],
-			altra_provincia_residenza =pz[30],
-			asl=pz[32],
-			sesso=sex,
-			cessato=cess,
-			data_chiusura=data_chius)
-        print("HO SOLO AGGIORNATO I CAMPI DIVERSI da cod")
-        conta1 +=1
-    elif len(paz) > 0:    #Se codgalileo non contiene nulla
+    paz = pazienti.objects.filter(cognome=pz[1],nome=pz[2])
+    if len(paz) > 0:    #Se cognome e nome esiste già
         paz.update(codgalileo=cod,
 			cognome=pz[1],
 			nome=pz[2],
@@ -125,8 +93,8 @@ for pz in cursor:
 			sesso=sex,
 			cessato=cess,
 			data_chiusura=data_chius)
-        print("TROVATO SENZA codgalileo CODIFICATO " + cod)
-        conta2 +=1
+        print("ESISTENTE ----> AGGIORNATO " + cod)
+        conta1 +=1
     else:                 # il record non esiste
         patient = pazienti(codgalileo=cod,
 			cognome=pz[1],
@@ -159,10 +127,10 @@ for pz in cursor:
 			data_chiusura=data_chius)
         patient.save()
         print('NUOVO  '+ cod)
-        conta3 +=1
+        conta2 +=1
 #
 out_file = open("/home/victor/mylog.log","a")
-TESTO= datetime.now().isoformat() + ' >>>> ' + str(conta1) + ';  '+ str(conta2) + '; *** NUOVI *** '+ str(conta3) + '\n'
+TESTO= datetime.now().isoformat() + ' >>>> ' + str(conta1) + ';  *** NUOVI --> '+ str(conta2) + '\n'
 out_file.write(TESTO)
 out_file.close()
 conn.close()

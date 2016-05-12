@@ -123,6 +123,9 @@ class Pazienti(DateUtenti):
     dotato_kit = models.BooleanField(default=False, db_column="dotato_kit")
     # nrec_kit rappresenta il numero del record di movimentooperazione in cui si è richiesto il kit
     nrec_kit = models.IntegerField(db_column='nrec_kit', verbose_name='Riferimento record', null=True, blank=True, default=0)
+#
+    objects = CacheManager()
+#
     def __unicode__(self):
         return u"%s, %s" % (self.cognome, self.nome)
     class Meta:
@@ -145,6 +148,9 @@ class Operatori(DateUtenti):
     telefoni = models.CharField(max_length=150, null=True, blank=True)
     contatti = models.TextField(db_column='contatti', null=True, blank=True)
     id_spider = models.IntegerField(db_index=True, default=-1, db_column='id_spider', verbose_name='ID Spider')
+#
+    objects = CacheManager()
+#
     def __unicode__(self):
         return u"%s, %s" % (self.cognome, self.nome)
     class Meta:
