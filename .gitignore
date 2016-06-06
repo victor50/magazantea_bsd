@@ -5,3 +5,4 @@ magazantea/wsgi.py.orig
 magazantea/__init.py__
 __init.py__
 magazzino/migrations/*
+spider/migrations/*
