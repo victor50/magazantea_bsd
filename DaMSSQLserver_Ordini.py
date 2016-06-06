@@ -1,5 +1,12 @@
 #-*- coding: utf-8 -*-
 
+
+"""
+Gli ordini al magazzino vengono divisi in due grandi gruppi:
+1) Quelli che vengono ritirati direttamente in Hospice
+2) Quelli con consegna a domicilio
+"""
+
 #Vai sotto la directory del progetto
 import os
 import django
@@ -37,33 +44,68 @@ ID (0), DataOraRegistrazione (1), IdAna (2), IDOperatore (3), DescOperatore (4),
 Descrizione (6), Quantita (7), FlagLetto (8), ModoRitiro (9)
 """
 
-cursor.execute("select * FROM XVW_ORDINI_MAGAZ order by DataOraRegistrazione,IdAna")
+#Ritiro in Hospice
+cursor.execute("select * FROM XVW_ORDINI_MAGAZ WHERE FlagLetto=0 AND ModoRitiro='H' order by DataOraRegistrazione,IdAna")
 
 richieste = cursor.fetchall()
 
 if len(richieste) > 0: # Se esiste almeno un ordine
-#Separa logicamente gli ordini
-    a= {}
+#Separa logicamente gli ordini con ritiro in Hospice
+    H = {}
     b = []
     conta = 0
     pazien = richieste[0][2]
-    ritiro = richieste[0][9]
     for ord in richieste:
         ord
-        if (ord[2] == pazien and ord[9] == ritiro):
+        if (ord[2] == pazien):
             b.append(ord[0])
             print "PASSO IF"
         else:
-            a[conta] = b
+            H[conta] = b
             b = []
             conta += 1
             pazien = ord[2]
-            ritiro = ord[9]
             b.append(ord[0])
             print "PASSO ELSE"
-    a[conta] = b
+    H[conta] = b
+    Ritira = {}
+    for ric in richieste:
+        Ritira[ric[0]] = ric[1:10]
+#FINE Ritiro in Hospice
+#
+#Consegna a domicilio
+cursor.execute("select * FROM XVW_ORDINI_MAGAZ WHERE FlagLetto=0 AND ModoRitiro='D' order by DataOraRegistrazione,IdAna")
+richieste = cursor.fetchall()
+if len(richieste) > 0: # Se esiste almeno un ordine
+#Separa logicamente gli ordini con consegna a Domicilio
+    D = {}
+    b = []
+    conta = 0
+    pazien = richieste[0][2]
+    for ord in richieste:
+        ord
+        if (ord[2] == pazien):
+            b.append(ord[0])
+            print "PASSO IF"
+        else:
+            D[conta] = b
+            b = []
+            conta += 1
+            pazien = ord[2]
+            b.append(ord[0])
+            print "PASSO ELSE"
+    D[conta] = b
+    Consegna = {}
+    for ric in richieste:
+        Consegna[ric[0]] = ric[1:10]
+#FINE Consegna a domicilio
 
+for I in range(len(D)):
+    for d in D[I]:
+        d,Consegna[d]
 
+cursor.execute("UPDATE XAR_ORDINI_FARMACIA SET FlagLetto=1 WHERE id=18")
+con.commit()
 
     for ord in richieste:
         codpz = 'XVW@'+'0'*(10-len(str(ord[2])))+str(ord[2])

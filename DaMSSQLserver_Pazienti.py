@@ -62,11 +62,20 @@ for pz in cursor:
     if pz[13]:
         tel = tel + ', '+ pz[13]
     cod = 'XVW@'+'0'*(10-len(str(pz[0])))+str(pz[0])
+    # Se cognome o nome sono nulli sostituiscili con uno spazio
+    if not pz[1]:
+        cogn = ' '
+    else:
+        cogn = pz[1]
+    if not pz[2]:
+        nom = ' '
+    else:
+        nom = pz[2]
     paz = pazienti.objects.filter(cognome=pz[1],nome=pz[2])
     if len(paz) > 0:    #Se cognome e nome esiste già
         paz.update(codgalileo=cod,
-			cognome=pz[1],
-			nome=pz[2],
+			cognome=cogn,
+			nome=nom,
 			datanascita=pz[4],
 			luogo=pz[6],
 			cf=pz[3],
@@ -97,8 +106,8 @@ for pz in cursor:
         conta1 +=1
     else:                 # il record non esiste
         patient = pazienti(codgalileo=cod,
-			cognome=pz[1],
-			nome=pz[2],
+			cognome=cogn,
+			nome=nom,
 			datanascita=pz[4],
 			luogo=pz[6],
 			cf=pz[3],
@@ -134,6 +143,7 @@ TESTO= datetime.now().isoformat() + ' >>>> ' + str(conta1) + ';  *** NUOVI --> '
 out_file.write(TESTO)
 out_file.close()
 conn.close()
+
 
 
 
