@@ -50,6 +50,7 @@ class OrdineSpider(models.Model):
     paziente = models.ForeignKey(Pazienti, db_column='paziente')
     data_emissione = models.DateTimeField(db_column='data_emissione',verbose_name='data di emissione',
                 null=False, blank=False)
+    operatore = models.ForeignKey(Operatori, db_column='operatore', to_field='id_spider')
     consegna = models.CharField(choices=mod_consegna, max_length=10, default='R',db_column='consegna',blank=False,null=False,verbose_name=u"Modalità di consegna")
     eseguito = models.BooleanField(default=False,db_column='eseguito',null=False,blank=False)
     def __unicode__(self):

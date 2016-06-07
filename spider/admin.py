@@ -20,7 +20,7 @@ class OrdineSpiderOption(admin.ModelAdmin):
 #    readonly_fields = [ 'paziente','data_emissione',  'consegna',  'eseguito' ]
     search_fields=['paziente__cognome','paziente__nome']
     list_display = ( 'paziente', 'data_emissione', 'eseguito')
-    fields=(( 'data_emissione', 'paziente'),('consegna'),('eseguito'))
+    fields=(( 'data_emissione', 'paziente','operatore'),('consegna'),('eseguito'))
  #   search_fields=['id_ordine','paziente']
     inlines=[OrdineSpiderDettaglioInline,ArticoliSpiderNonMagazzinoInline]
     order_by=['-id_ordine',]

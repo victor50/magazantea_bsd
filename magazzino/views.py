@@ -19,7 +19,6 @@ def hello(request):
 @login_required
 @cache_page(60 * 15)
 def listbarcode(request):
-    from pickle import dumps, loads
     from magazzino.models import Articoli, posizione, categorie_abbreviazioni
     data=datetime.now().strftime('%d-%m-%Y ore %H:%M')
     conta = Articoli.objects.count()
@@ -46,9 +45,7 @@ def listbarcode(request):
     else: # N == 0
         F[0] = [i for i in range(R)]
     #
-    tutti=Articoli.objects.all()
-    qq = dumps(tutti)
-    q = loads(qq)
+    q = Articoli.objects.all()
     #
     if R>0:
         Risultato = []
