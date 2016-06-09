@@ -19,13 +19,14 @@ django.setup()
 import magazantea.settings
 #######
 
-from magazzino.models import Articoli as articoli, Pazienti as pazienti,FarmaciAIFA as aifa
-from magazzino.models import Operatori as operatori, MovimentoOrdine as ordini, MovimentoOrdineDettaglio as dettagli
-from magazzino.models import ArticoliNonMagazzino as nonmagazzino
-from magazzino.decode32 import *
 from datetime import datetime, date,timedelta
-
 import pymssql
+
+from magazzino.decode32 import *
+
+from magazzino.models import Articoli as articoli, Pazienti as pazienti,FarmaciAIFA as aifa
+from magazzino.models import Operatori as operatori
+from spider.models import OrdineSpider as ordine, OrdineSpiderDettaglio as ordinedettaglio, ArticoliSpiderNonMagazzino as nonmagazzino
 
 server = os.getenv("MY_SERVER")
 user = os.getenv("MY_USER")
@@ -107,61 +108,99 @@ for I in range(len(D)):
 cursor.execute("UPDATE XAR_ORDINI_FARMACIA SET FlagLetto=1 WHERE id=18")
 con.commit()
 
-    for ord in richieste:
-        codpz = 'XVW@'+'0'*(10-len(str(ord[2])))+str(ord[2])
-        if ord[4][:2] == '$$':
-            code = ord[4][2:]
-        else:
-            code = decode32(ord[4])
+dn=datetime(do.year,do.month,do.day,do.hour,do.minute)
 
-        p = pazienti.objects.get(codgalileo=codpz)
-        if ord[8] == 'H':
-            cons = 'R'
-        else:
-            cons = 'S'
-    # Crea ordini principale
-        ric = ordini(id_ordini=ord[0],
-                paziente=p,
-                data_emissione=ord[1],
-                consegna=cons,
-                eseguito=False)
-        ric.save()
-    #    print("Paziente id %s, %s %s") % (str(p.pk),p.cognome, p.nome)
-        for ll in lista:
+if len(H) > 0:
+# INIZIALIZZA VARIABILI
+#     primorecord = Ritira[H[0][0]]
+#     do = primorecord[0]
+#     do_min = datetime(do.year,do.month,do.day,do.hour,do.minute)
+#     do_max = do_min + timedelta(hours=+1)
+#     pz_1 = 'XVW@'+'0'*(10-len(str(primorecord[1])))+str(primorecord[1])
+#     codop = primorecord[2]
+#     o = operatori.objects.get(id_spider=codop)
+#     p = pazienti.objects.get(codgalileo=pz_1)
+    for i in range(len(H)):
+        primorecord = Ritira[H[i][0]]
+        do = primorecord[0]
+        do_min = datetime(do.year,do.month,do.day,do.hour,do.minute)
+        do_max = do_min + timedelta(hours=+1)
+        pz_1 = 'XVW@'+'0'*(10-len(str(primorecord[1])))+str(primorecord[1])
+        codop = primorecord[2]
+        o = operatori.objects.get(id_spider=codop)
+        p = pazienti.objects.get(codgalileo=pz_1)
+        for ord in H[i]:
+            R = Ritira[ord]
+            codpz = 'XVW@'+'0'*(10-len(str(R[2])))+str(R[2])
+            if codpz == pz_1:
+                try:
+                    r = ordine.objects.get(paziente=p.pk, data_emissione__gte=do_min, data_emissione__lte=do_max)
+                    print("ESISTENTE"+ " pk= " + str(r.pk))
+                except:
+                    r = ordine(paziente=p,
+                        data_emissione=do_min,
+                        operatore=o,
+                        consegna='R',
+                        eseguito=False)
+                    r.save()
+
+
+
+
+                    if R[4][:2] == '$$':
+                        code = R[4][2:]
+                    else:
+                        code = decode32(R[4])
+
+
+    p = pazienti.objects.get(codgalileo=codpz)
+    if ord[8] == 'H':
+        cons = 'R'
+    else:
+        cons = 'S'
+# Crea ordini principale
+    ric = ordini(id_ordini=ord[0],
+            paziente=p,
+            data_emissione=ord[1],
+            consegna=cons,
+            eseguito=False)
+    ric.save()
+#    print("Paziente id %s, %s %s") % (str(p.pk),p.cognome, p.nome)
+    for ll in lista:
 # ll[0]= id_ordini, ll[1] = codicegalileo,ll[2]=codicemagazzino, ll[3]=quantità confezioni
+        try:
+            f = articoli.objects.get(codice=ll[2])
+            totale = ll[3]*f.quantita_conf
+            art = dettagli(id_ordini=ric,
+                    codarticolo=f,
+                    numconfezioni=ll[3],
+                    totalepezzi=totale
+                    )
+            art.save()
+#            print("Paz.%s ord. %s Magazzino ==> %s: %s: %s quant. %s") % (ord[0], str(ord[1]),ll[2],f.codice, f.descrizione, str(ll[3]))
+        except:
             try:
-                f = articoli.objects.get(codice=ll[2])
-                totale = ll[3]*f.quantita_conf
-                art = dettagli(id_ordini=ric,
-                        codarticolo=f,
+                f = aifa.objects.get(id_aifa=ll[2])
+                a = articoli.objects.filter(descrizione=f.nome_farmaco)
+                if a:
+                    totale = ll[3]*a[0].quantita_conf
+                    art = dettagli(id_ordini=ric,
+                        codarticolo=a[0],
                         numconfezioni=ll[3],
                         totalepezzi=totale
                         )
-                art.save()
-    #            print("Paz.%s ord. %s Magazzino ==> %s: %s: %s quant. %s") % (ord[0], str(ord[1]),ll[2],f.codice, f.descrizione, str(ll[3]))
-            except:
-                try:
-                    f = aifa.objects.get(id_aifa=ll[2])
-                    a = articoli.objects.filter(descrizione=f.nome_farmaco)
-                    if a:
-                        totale = ll[3]*a[0].quantita_conf
-                        art = dettagli(id_ordini=ric,
-                            codarticolo=a[0],
-                            numconfezioni=ll[3],
-                            totalepezzi=totale
+                    art.save()
+                else:
+                    altro = nonmagazzino(id_ordini=ric,
+                            codice_AIFA=f.id_aifa,
+                            codice=f.cod_magazzino,
+                            descrizione=f.nome_farmaco,
+                            confezioni=ll[3]
                             )
-                        art.save()
-                    else:
-                        altro = nonmagazzino(id_ordini=ric,
-                                codice_AIFA=f.id_aifa,
-                                codice=f.cod_magazzino,
-                                descrizione=f.nome_farmaco,
-                                confezioni=ll[3]
-                                )
-                        altro.save()
-    #                print("Paz.%s ord. %s AIFA ==> %s: %s: %s quant. %s") % (ord[0], str(ord[1]),ll[2],f.id_aifa, f.nome_farmaco, str(ll[3]))
-                except:
-                    print("Ne in Magazzino ne in AIFA: %s, %s, %s,%s") % (ll[0],ll[1],ll[2],str(ll[3]))
+                    altro.save()
+#                print("Paz.%s ord. %s AIFA ==> %s: %s: %s quant. %s") % (ord[0], str(ord[1]),ll[2],f.id_aifa, f.nome_farmaco, str(ll[3]))
+            except:
+                print("Ne in Magazzino ne in AIFA: %s, %s, %s,%s") % (ll[0],ll[1],ll[2],str(ll[3]))
     # Metti come letto l'ordini
         cur.execute("UPDATE noematica.magazzino_ordini SET READED='Y' where ID="+str(ord[1]))
         cur.execute("COMMIT")

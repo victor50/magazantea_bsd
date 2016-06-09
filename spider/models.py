@@ -103,8 +103,6 @@ post_delete.connect(TotaliGiacenze, sender=MovimentoOrdineDettaglio)
 
 class ArticoliSpiderNonMagazzino(models.Model):
     id_ordine = models.ForeignKey(OrdineSpider,db_column='id_ordine')
-    codice_AIFA = models.CharField(max_length=12, db_index=True,verbose_name='Codice AIFA')
-    codice = models.CharField(max_length=15, db_index=True,verbose_name='Codice Magazzino')
     descrizione = models.CharField(max_length=70,db_index=True,verbose_name='Descrizione')
     confezioni = models.IntegerField(db_column='confezioni',blank=True,default=None,verbose_name=u'Num. confezioni')
     crea = models.BooleanField(default=False, db_column="crea")
