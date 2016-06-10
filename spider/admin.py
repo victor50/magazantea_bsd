@@ -13,12 +13,13 @@ class OrdineSpiderDettaglioInline(admin.TabularInline):
 class ArticoliSpiderNonMagazzinoInline(admin.TabularInline):
     model=ArticoliSpiderNonMagazzino
     readonly_fields= ['id_ordine',  'descrizione']
-    fields=('descrizione', 'crea','confezioni')
+    fields=('descrizione', 'crea','numconfezioni')
     extra = 0
 
 class OrdineSpiderOption(admin.ModelAdmin):
     list_per_page = 500
-    readonly_fields = ['paziente','data_emissione',  'consegna',  'eseguito' ,'ind']
+    readonly_fields = ['operatore','paziente','data_emissione',  
+'consegna',  'eseguito' ,'ind']
     search_fields=['paziente__cognome','paziente__nome']
     list_display = ('paziente', 'ind','data_emissione', 'eseguito')
     fields=(( 'data_emissione', 'paziente','operatore'),('ind'),('consegna','eseguito'))

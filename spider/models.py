@@ -88,7 +88,7 @@ class OrdineSpiderDettaglio(models.Model):
 # Se TUTTI gli articoli dell'ordine hanno fatto=True imposta anche l'ordine eseguito
         s = OrdineSpiderDettaglio.objects.filter(id_ordine=self.id_ordine)
         z = OrdineSpiderDettaglio.objects.filter(id_ordine=self.id_ordine,fatto=True)
-        w = OrdineSpider.objects.get(id_ordine=s[0].id_ordine_id)
+        w = OrdineSpider.objects.get(id=s[0].id_ordine_id)
         if s.count() == z.count():
             w.eseguito = True
         else:
@@ -104,7 +104,7 @@ post_delete.connect(TotaliGiacenze, sender=MovimentoOrdineDettaglio)
 class ArticoliSpiderNonMagazzino(models.Model):
     id_ordine = models.ForeignKey(OrdineSpider,db_column='id_ordine')
     descrizione = models.CharField(max_length=70,db_index=True,verbose_name='Descrizione')
-    confezioni = models.IntegerField(db_column='confezioni',blank=True,default=None,verbose_name=u'Num. confezioni')
+    numconfezioni = models.IntegerField(db_column='numconfezioni',blank=True,default=None,verbose_name=u'Num. confezioni')
     crea = models.BooleanField(default=False, db_column="crea")
     class Meta:
         db_table = u'articolispidernonmagazzino'

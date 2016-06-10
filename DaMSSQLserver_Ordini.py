@@ -108,49 +108,78 @@ for I in range(len(D)):
 cursor.execute("UPDATE XAR_ORDINI_FARMACIA SET FlagLetto=1 WHERE id=18")
 con.commit()
 
-dn=datetime(do.year,do.month,do.day,do.hour,do.minute)
-
 if len(H) > 0:
-# INIZIALIZZA VARIABILI
-#     primorecord = Ritira[H[0][0]]
-#     do = primorecord[0]
-#     do_min = datetime(do.year,do.month,do.day,do.hour,do.minute)
-#     do_max = do_min + timedelta(hours=+1)
-#     pz_1 = 'XVW@'+'0'*(10-len(str(primorecord[1])))+str(primorecord[1])
-#     codop = primorecord[2]
-#     o = operatori.objects.get(id_spider=codop)
-#     p = pazienti.objects.get(codgalileo=pz_1)
     for i in range(len(H)):
+# INIZIALIZZA VARIABILI
         primorecord = Ritira[H[i][0]]
+# do sta per data e ora
         do = primorecord[0]
         do_min = datetime(do.year,do.month,do.day,do.hour,do.minute)
         do_max = do_min + timedelta(hours=+1)
-        pz_1 = 'XVW@'+'0'*(10-len(str(primorecord[1])))+str(primorecord[1])
+        codpz = 'XVW@'+'0'*(10-len(str(primorecord[1])))+str(primorecord[1])
         codop = primorecord[2]
         o = operatori.objects.get(id_spider=codop)
-        p = pazienti.objects.get(codgalileo=pz_1)
+        p = pazienti.objects.get(codgalileo=codpz)
+        print('codpz = '+codpz)
         for ord in H[i]:
             R = Ritira[ord]
-            codpz = 'XVW@'+'0'*(10-len(str(R[2])))+str(R[2])
-            if codpz == pz_1:
-                try:
-                    r = ordine.objects.get(paziente=p.pk, data_emissione__gte=do_min, data_emissione__lte=do_max)
-                    print("ESISTENTE"+ " pk= " + str(r.pk))
-                except:
-                    r = ordine(paziente=p,
-                        data_emissione=do_min,
-                        operatore=o,
-                        consegna='R',
-                        eseguito=False)
-                    r.save()
+            codpz = 'XVW@'+'0'*(10-len(str(R[1])))+str(R[1])
+            try:
+                r = ordine.objects.get(paziente=p.pk, data_emissione__gte=do_min, data_emissione__lte=do_max)
+                print("ESISTENTE"+ " pk= " + str(r.pk))
+                if R[4][:2] == '$$':
+                    code = R[4][2:]
+                elif ((len(R[4]) > 0) and (R[4][:2] <> '$$')):
+                    code = decode32(R[4])
+                else:
+                    code=None
+                if code:
+                    try:
+                        a = articoli.objects.get(codice=code)
+                    except:
+                        code=None
+                if code:
+                    d = ordinedettaglio(id_ordine=r,
+                        codarticolo=a,
+                        numconfezioni=R[6])
+                    d.save()
+                else:
+                    n = nonmagazzino(id_ordine=r,
+                        descrizione=R[5],
+                        numconfezioni=R[6])
+                    n.save()
+            except:
+                r = ordine(paziente=p,
+                    data_emissione=do_min,
+                    operatore=o,
+                    consegna='R',
+                    eseguito=False)
+                r.save()
+                print('NUOVO REC ' +str(r.pk))
+                if R[4][:2] == '$$':
+                    code = R[4][2:]
+                elif ((len(R[4]) > 0) and (R[4][:2] <> '$$')):
+                    code = decode32(R[4])
+                else:
+                    code=None
+                if code:
+                    try:
+                        a = articoli.objects.get(codice=code)
+                    except:
+                        code=None
+                if code:
+                    d = ordinedettaglio(id_ordine=r,
+                        codarticolo=a,
+                        numconfezioni=R[6])
+                    d.save()
+                else:
+                    n = nonmagazzino(id_ordine=r,
+                        descrizione=R[5],
+                        numconfezioni=R[6])
+                    n.save()
 
 
 
-
-                    if R[4][:2] == '$$':
-                        code = R[4][2:]
-                    else:
-                        code = decode32(R[4])
 
 
     p = pazienti.objects.get(codgalileo=codpz)
