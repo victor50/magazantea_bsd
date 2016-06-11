@@ -60,6 +60,9 @@ class OrdineSpider(models.Model):
         verbose_name_plural = "Magazzino ANTEA Ordini da Spider"
         ordering=['data_emissione','pk']
 
+post_save.connect(TotaliGiacenze, sender=OrdineSpider)
+post_delete.connect(TotaliGiacenze, sender=OrdineSpider)
+
 class OrdineSpiderDettaglio(models.Model):
     id_ordine = models.ForeignKey(OrdineSpider,db_column='id_ordine')
     codarticolo = models.ForeignKey(Articoli, db_index=True,verbose_name='Articolo',related_name='ordinespiderdettaglio_cod')
@@ -99,7 +102,7 @@ class OrdineSpiderDettaglio(models.Model):
         db_table = u'ordinespiderdettaglio'
         verbose_name_plural = "Magazzino ANTEA Dettaglio Ordini da Spider"
 
-post_delete.connect(TotaliGiacenze, sender=MovimentoOrdineDettaglio)
+post_delete.connect(TotaliGiacenze, sender=OrdineSpiderDettaglio)
 
 class ArticoliSpiderNonMagazzino(models.Model):
     id_ordine = models.ForeignKey(OrdineSpider,db_column='id_ordine')

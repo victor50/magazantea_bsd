@@ -373,7 +373,6 @@ class MovimentoFatturaDettaglio(DateUtenti):
             self.modificato_da=p.modificato_da
 #
         super(MovimentoFatturaDettaglio,self).save()
-#        GiacenzeSR(self.codarticolo_id)
         return
     def __unicode__(self):
         return self.codarticolo.descrizione

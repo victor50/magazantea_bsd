@@ -18,15 +18,15 @@ class ArticoliSpiderNonMagazzinoInline(admin.TabularInline):
 
 class OrdineSpiderOption(admin.ModelAdmin):
     list_per_page = 500
-    readonly_fields = ['operatore','paziente','data_emissione',  
-'consegna',  'eseguito' ,'ind']
+    readonly_fields = ['operatore','paziente','data_emissione',
+'consegna',  'eseguito' ,'domicilio']
     search_fields=['paziente__cognome','paziente__nome']
-    list_display = ('paziente', 'ind','data_emissione', 'eseguito')
-    fields=(( 'data_emissione', 'paziente','operatore'),('ind'),('consegna','eseguito'))
+    list_display = ('paziente', 'consegna','domicilio','data_emissione', 'eseguito')
+    fields=(( 'data_emissione', 'paziente','operatore'),('domicilio'),('consegna','eseguito'))
  #   search_fields=['id_ordine','paziente']
     inlines=[OrdineSpiderDettaglioInline,ArticoliSpiderNonMagazzinoInline]
     order_by=['-id_ordine',]
-    def ind(self,obj):
+    def domicilio(self,obj):
         testo = ('%s - %s'  %(obj.paziente.indirizzo,obj.paziente.citta))
         if obj.paziente.piano:
             testo += ' piano '+ obj.paziente.piano
@@ -37,6 +37,6 @@ class OrdineSpiderOption(admin.ModelAdmin):
         if obj.paziente.telefoni:
             testo += ' tel. '+ obj.paziente.telefoni
         return testo
-    ind.short_description='ind'
+    domicilio.short_description='domicilio'
 
 admin.site.register(OrdineSpider, OrdineSpiderOption)
