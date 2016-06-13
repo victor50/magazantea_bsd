@@ -153,7 +153,7 @@ def export_Articoli_da_ordinare_xls(modeladmin, request, queryset):
     """
     Generic xls export admin action.
     """
-    from magazzino.signals import EseguiQuery
+    from comune.signals import EseguiQuery
     from magazzino.models import Movimentomag, MovimentoFatturaDettaglio, Articoli
 
 #   Deve essere un utente di staff a richiedere le info
@@ -244,7 +244,7 @@ export_Articoli_da_ordinare_xls.short_description = "Lista Articoli da ordinare 
 
 
 
-from magazzino.signals import EseguiQuery
+from comune.signals import EseguiQuery
 from magazzino.models import Movimentomag,MovimentoFatturaDettaglio,Articoli
 mm=Movimentomag.objects.filter(totalepezzi__gt=0).order_by("codarticolo")
 mf=MovimentoFatturaDettaglio.objects.filter(totalepezzi__gt=0).order_by("codarticolo")

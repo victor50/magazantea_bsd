@@ -23,7 +23,7 @@ import magazantea.settings
 from datetime import datetime, date,timedelta
 import pymssql
 
-from magazzino.decode32 import *
+from comune.prog_servizio import *
 
 from magazzino.models import Articoli as articoli, Pazienti as pazienti,FarmaciAIFA as aifa
 from magazzino.models import Operatori as operatori

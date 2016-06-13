@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django_cache_manager.cache_manager import CacheManager
 from magazzino.models import *
-from magazzino.signals import *
-from magazzino.prog_servizio import *
+from comune.signals import *
+from comune.prog_servizio import *
 from magazantea.settings import MEDIA_ROOT
 
 

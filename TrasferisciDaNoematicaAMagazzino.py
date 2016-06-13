@@ -14,7 +14,7 @@ import datetime
 from noematica.models import ordini_magazzino as ordini_noe,magazzino_specifica_ordini as specifica_noe, magazzino_conferma_ordini as conferma_noe
 #Chiama le tabelle da alimentare con i dati di noematica in magazzino
 from magazzino.models import ArticoliLista, Pazienti as pazienti_mg,MovimentoOrdine as ordine_mg, MovimentoOrdineDettaglio as specifica_mg
-from magazzino.signals import EseguiQuery
+from comune.signals import EseguiQuery
 # Carica nel queryset tutti i record della tabella pazienti-ordini di noematica
 ord = ordini_noe.objects.all()
 oggi = datetime.date.today()

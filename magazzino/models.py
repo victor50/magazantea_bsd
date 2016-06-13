@@ -5,9 +5,9 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django_cache_manager.cache_manager import CacheManager
-from magazzino.decode32 import decode32
-from magazzino.signals import *
-from magazzino.prog_servizio import *
+from comune.prog_servizio import decode32
+from comune.signals import *
+from comune.prog_servizio import *
 from magazzino.barcode import CreaCodiceBarra
 from magazantea.settings import MEDIA_ROOT
 
