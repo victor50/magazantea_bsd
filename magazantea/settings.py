@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'b(%_qs2$sk3_ht&amp;+@9+6=%t1kp$ey@f9$rrydsq&amp;r$-z)xbk%*'
 
 
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS=['*']
 #TEMPLATE_DEBUG = DEBUG
 
@@ -27,7 +27,7 @@ DATABASES = {
         'NAME': 'magazzino',                      # Or path to database file if using sqlite3.
         'USER': 'antea',                      # Not used with sqlite3.
         'PASSWORD': 'antea',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     },
 }
@@ -121,7 +121,7 @@ INSTALLED_APPS = (
     'django_cache_manager',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'debug_toolbar',
+#    'debug_toolbar',
     'magazzino',
     'spider',
 )
