@@ -1,3 +1,4 @@
+
 DEBUG = True
 ALLOWED_HOSTS=['*']
 #TEMPLATE_DEBUG = DEBUG
@@ -12,6 +13,21 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     },
 }
+
+
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django_cache_manager',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
+    'magazzino',
+    'spider',
+)
 
 if DEBUG:
     INSTALLED_APPS += (

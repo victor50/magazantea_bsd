@@ -5,19 +5,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = 'b(%_qs2$sk3_ht&amp;+@9+6=%t1kp$ey@f9$rrydsq&amp;r$-z)xbk%*'
 
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_cache_manager',
-    'django.contrib.admin',
-    'django.contrib.admindocs',
-    'magazzino',
-    'spider',
-)
 
 
 try:
