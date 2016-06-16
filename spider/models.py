@@ -42,8 +42,6 @@ unita_misura = ((6, 'Bottiglie'), (12, 'Bustine'), (10, 'Capsule'), \
              (11, 'Kit'), (1, 'Pezzi'), (13, 'Sacca'), \
              (7, 'Scatolette'), (5, 'Supposte'), (14,'Tubo'),)
 
-tipodocumento = ((1,u'BOLLA'),(2,u'FATTURA'), (3,u'LISTA SINTESI'))
-
 mod_consegna = (('S',u'SPEDIRE'),('R',u'RITIRA'))
 
 class OrdineSpider(models.Model):
@@ -82,12 +80,37 @@ class OrdineSpiderDettaglio(models.Model):
         return pos
     def save(self):
         f=Articoli.objects.get(descrizione=self.codarticolo)
+        p=OrdineSpider.objects.get(pk=self.id_ordine_id)
+        if (f.codice == '_KIT_'): # SE HAI CHIESTO KIT ED IL PAZIENTE NON LO HA
+            richiesta_kit = True
+        else:
+            richiesta_kit = False
+        if (p.paziente.dotato_kit): #SE il paziente ha avuto il kit non è bisognoso
+            paziente_bisognoso = False
+        else:
+            paziente_bisognoso = True
         if not self.numconfezioni:
             self.numconfezioni = 0
         if not self.numerounita:
             self.numerounita = 0
         self.totalepezzi = self.numconfezioni*f.quantita_conf+self.numerounita
         super(OrdineSpiderDettaglio,self).save()
+        if (richiesta_kit and paziente_bisognoso):
+            kk = Kit_Antea.objects.all()
+            for k in kk:
+                new_mm = OrdineSpiderDettaglio(codarticolo = k.codarticolo, id_ordine_id=p.pk, \
+                    numconfezioni=k.numconfezioni, numerounita=k.numerounita, totalepezzi = k.totalepezzi)
+                new_mm.save()
+            mm = OrdineSpiderDettaglio.objects.filter(codarticolo_id='_KIT_',id_ordine_id=p.pk)
+            for m in mm:
+                m.delete()
+            p.paziente.dotato_kit=True
+            p.paziente.nrec_kit = p.pk
+            p.paziente.save()
+        else:
+            mm = OrdineSpiderDettaglio.objects.filter(codarticolo_id='_KIT_',id_ordine_id=p.pk)
+            for m in mm:
+                m.delete()
 # Se TUTTI gli articoli dell'ordine hanno fatto=True imposta anche l'ordine eseguito
         s = OrdineSpiderDettaglio.objects.filter(id_ordine=self.id_ordine)
         z = OrdineSpiderDettaglio.objects.filter(id_ordine=self.id_ordine,fatto=True)

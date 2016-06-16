@@ -4,8 +4,6 @@ from django import forms
 from magazzino.widgets import ForeignKeyRawIdWidget
 from magazzino.models import *
 from magazzino.actions import *
-
-from magazantea.my_settings import HOST_LOC,HOST_VPN
 #
 def chi(request, obj):
     myuser = unicode(request.user)
@@ -48,26 +46,7 @@ class FornitoriOption(SalvaModello):
     order_by=['nome',]
     list_filter=['creato_da','data_di_inserimento','modificato_da','data_di_modifica']
     save_on_top=True
-    def delete_selected(modeladmin, request, queryset):
-        import psycopg2
-        from decimal import Decimal
-        try:
-            conn = psycopg2.connect("dbname='magazicec' user='antea' host='"+HOST_LOC+"' password='antea'")
-        except:
-            try:
-                conn = psycopg2.connect("dbname='magazicec' user='antea' host='"+HOST_VPN+"' password='antea'")
-            except:
-                print "Non riesco a connettermi al database"
-        cur = conn.cursor()
-        for obj in queryset:
-            print 'Sto cancellando i Fornitori selezionati: '+str(obj.pk)
-            cur.execute('DELETE FROM fornitori WHERE id='+str(obj.pk))
-            obj.delete()
-        conn.commit()
-        cur.close()
-        conn.close()
-        return
-    delete_selected.short_description = "Cancella Fornitori selezionati"
+
 
 class ArticoliOption(SalvaModello):
     search_fields=['codice','descrizione']
@@ -145,7 +124,7 @@ nome.short_description = 'nome'
 
 class PazientiOption(SalvaModello):
     list_per_page = 500
-    readonly_fields = ['creato_da','modificato_da','data_di_inserimento','data_di_modifica','codgalileo','dotato_kit']
+    readonly_fields = ['creato_da','modificato_da','data_di_inserimento','data_di_modifica','codgalileo','cessato','dotato_kit']
     list_filter=['creato_da','data_di_inserimento','modificato_da','data_di_modifica','data_chiusura']
     search_fields=['nome','cognome','codgalileo','cf']
     list_display = (nome,'datanascita','cf','codgalileo','inhospice','dotato_kit')

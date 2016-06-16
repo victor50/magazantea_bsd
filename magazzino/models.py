@@ -223,7 +223,6 @@ class Articoli(DateUtenti):
         ordering=['descrizione']
 
 pre_delete.connect(elimina_file_img, sender=Articoli)
-#m2m_changed.connect(m2m_ModificaArticoliInICEC, sender=Articoli.fornitore.through)
 
 
 

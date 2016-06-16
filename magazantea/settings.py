@@ -5,10 +5,25 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = 'b(%_qs2$sk3_ht&amp;+@9+6=%t1kp$ey@f9$rrydsq&amp;r$-z)xbk%*'
 
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django_cache_manager',
+    'django.contrib.admin',
+    'django.contrib.admindocs',
+    'magazzino',
+    'spider',
+)
 
-DEBUG = False
-ALLOWED_HOSTS=['*']
-#TEMPLATE_DEBUG = DEBUG
+
+try:
+    from settings_local import *
+except ImportError:
+    sys.stderr.write("The settings_local.py file is missing.\n")
 
 ADMINS = (
      ('Amministratore', 'magazzinodb@gmail.com'),
@@ -21,16 +36,6 @@ EMAIL_HOST_PASSWORD = 'Feder1c0'
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',#, 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'magazzino',                      # Or path to database file if using sqlite3.
-        'USER': 'antea',                      # Not used with sqlite3.
-        'PASSWORD': 'antea',                  # Not used with sqlite3.
-        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    },
-}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -111,20 +116,6 @@ TEMPLATES = [
 ]
 
 
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django_cache_manager',
-    'django.contrib.admin',
-    'django.contrib.admindocs',
-#    'debug_toolbar',
-    'magazzino',
-    'spider',
-)
 
 CACHES = {
     'default': {
