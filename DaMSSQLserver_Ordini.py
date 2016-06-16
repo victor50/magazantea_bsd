@@ -34,6 +34,8 @@ user = os.getenv("MY_USER")
 password = os.getenv("MY_PASSWORD")
 database = os.getenv("MY_DATABASE")
 
+f = open("/home/victor/ordini.log","w")
+
 con = pymssql.connect(server, user, password, database)
 cursor = con.cursor()
 
@@ -46,12 +48,14 @@ ID (0), DataOraRegistrazione (1), IdAna (2), IDOperatore (3), DescOperatore (4),
 Descrizione (6), Quantita (7), FlagLetto (8), ModoRitiro (9)
 """
 
+H = {}
+D = {}
+
 #Ritiro in Hospice
 cursor.execute("select * FROM XVW_ORDINI_MAGAZ WHERE FlagLetto=0 AND ModoRitiro='H' order by DataOraRegistrazione,IdAna")
 
 richieste = cursor.fetchall()
 
-H = D = {}
 
 if len(richieste) > 0: # Se esiste almeno un ordine
 #Separa logicamente gli ordini con ritiro in Hospice
