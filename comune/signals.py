@@ -1,8 +1,28 @@
 #-*- coding: utf-8 -*-
+from django.core.cache import cache
+import time
 from comune.prog_servizio import EseguiQuery
 
 def stampa(sender,**kwargs):
     print('Cancellato Record')
+    return
+
+def SommaInMemcached(sender,instance,**kwargs):
+    start_time = time.clock() # Inizio misura tempo esecuzione della procedura
+    Somma = cache.get(instance.codarticolo_id) + instance.totalepezzi
+    cache.set(instance.codarticolo_id,Somma,None)
+    instance.codarticolo.giacenza = Somma
+    instance.codarticolo.save()
+    print("Ricalcolo giacenze con Memcache --- %s secondi") % (time.clock() - start_time)
+    return
+
+def SottraiInMemcached(sender,instance,**kwargs):
+    start_time = time.clock() # Inizio misura tempo esecuzione della procedura
+    Sottrai = cache.get(instance.codarticolo_id) - instance.totalepezzi
+    cache.set(instance.codarticolo_id,Sottrai,None)
+    instance.codarticolo.giacenza = Sottrai
+    instance.codarticolo.save()
+    print("Ricalcolo giacenze con Memcache --- %s secondi") % (time.clock() - start_time)
     return
 
 
@@ -66,7 +86,7 @@ def TotaliGiacenze(sender,**kwargs):
         CG= EseguiQuery(CodGia)
         CODICI = []
         CODICI = [t[0] for t in CG]
-        [cache.set(str(t[0]), t[1],180) for t in CG]
+        [cache.set(str(t[0]), t[1],None) for t in CG]
     #
         giacenze = {}
         # Poni tutte le giacenze nella lista uguali a zero

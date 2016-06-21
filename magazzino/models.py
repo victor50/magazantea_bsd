@@ -5,7 +5,6 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django_cache_manager.cache_manager import CacheManager
-from comune.prog_servizio import decode32
 from comune.signals import *
 from comune.prog_servizio import *
 from magazzino.barcode import CreaCodiceBarra
@@ -249,7 +248,7 @@ post_delete.connect(Elimina_Movimento, sender=MovimentoOperazione)
 
 class Movimentomag(DateUtenti):
     tipomov = models.ForeignKey(MovimentoOperazione,verbose_name='Magazzino Dettaglio Movimento')
-    codarticolo = models.ForeignKey(Articoli, db_index=True,verbose_name='Articolo')
+    codarticolo = models.ForeignKey(Articoli, db_index=True,related_name='movimentomag',verbose_name='Articolo')
     numconfezioni = models.IntegerField(null=True, db_column='numconfezioni',
                        blank=True,default=None,verbose_name='Num. Confezioni')
     numerounita = models.IntegerField(db_column='numerounita',blank=True,default=None,
@@ -329,7 +328,7 @@ class MovimentoFattura(DateUtenti):
 
 class MovimentoFatturaDettaglio(DateUtenti):
     tipomov = models.ForeignKey(MovimentoFattura, verbose_name='Tipo di Movimento', db_index=True)
-    codarticolo = models.ForeignKey(Articoli, db_index=True,verbose_name='Articolo')
+    codarticolo = models.ForeignKey(Articoli, db_index=True,related_name='fatturadettaglio',verbose_name='Articolo')
     numconfezioni = models.IntegerField(null=True, db_column='numconfezioni',
                        blank=True,default=None,verbose_name='Num. Confezioni')
     numerounita = models.IntegerField(db_column='numerounita',blank=True,default=None,

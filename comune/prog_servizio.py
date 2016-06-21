@@ -74,7 +74,7 @@ def Giacenze():
         CG= EseguiQuery(CodGia)
         CODICI = []
         CODICI = [t[0] for t in CG]
-        [cache.set(str(t[0]), t[1],180) for t in CG]
+        [cache.set(str(t[0]), t[1],None) for t in CG]
     #
         giacenze = {}
         # Poni tutte le giacenze nella lista uguali a zero
