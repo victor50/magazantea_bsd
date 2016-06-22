@@ -38,5 +38,8 @@ class OrdineSpiderOption(admin.ModelAdmin):
             testo += ' tel. '+ obj.paziente.telefoni
         return testo
     domicilio.short_description='domicilio'
+    def save_formset(self, request, form, formset, change):
+       formset.save()
+       Giacenze()
 
 admin.site.register(OrdineSpider, OrdineSpiderOption)

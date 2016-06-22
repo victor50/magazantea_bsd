@@ -114,8 +114,8 @@ class MovimentoOperazioneOption(SalvaModello):
 #         else:
 #             return self.readonly_fields
     def save_formset(self, request, form, formset, change):
-        formset.save()
-        Giacenze()
+       formset.save()
+       Giacenze()
 
 def nome(obj):
     return ("%s, %s" % (obj.cognome, obj.nome))
@@ -246,9 +246,10 @@ class MovimentoOrdineOption(SalvaModello):
  #   search_fields=['id_ordine','paziente']
     inlines=[MovimentoOrdineDettaglioInline,ArticoliNonMagazzinoInline]
     order_by=['-id_ordine',]
- #   def save_formset(self, request, form, formset, change):
- #      formset.save()
- #      Giacenze()
+    def save_formset(self, request, form, formset, change):
+       formset.save()
+       Giacenze()
+
 class FarmaciAIFAOption(admin.ModelAdmin):
     list_per_page = 1000
     readonly_fields = ['id_aifa','cod_magazzino','nome_farmaco']

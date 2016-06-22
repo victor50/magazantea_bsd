@@ -123,8 +123,8 @@ class OrdineSpiderDettaglio(models.Model):
         db_table = u'ordinespiderdettaglio'
         verbose_name_plural = "Magazzino ANTEA Dettaglio Ordini da Spider"
 
-post_save.connect(SottraiInMemcached, sender=OrdineSpiderDettaglio)
-post_delete.connect(SommaInMemcached, sender=OrdineSpiderDettaglio)
+# post_save.connect(SottraiInMemcached, sender=OrdineSpiderDettaglio)
+# post_delete.connect(SommaInMemcached, sender=OrdineSpiderDettaglio)
 
 class ArticoliSpiderNonMagazzino(models.Model):
     id_ordine = models.ForeignKey(OrdineSpider,db_column='id_ordine')

@@ -306,7 +306,8 @@ class Movimentomag(DateUtenti):
         verbose_name_plural = "Dettaglio Movimenti ANTEA senza bolla o fattura"
         ordering=['data_di_inserimento', ]
 
-post_delete.connect(TotaliGiacenze, sender=Movimentomag)
+#post_save.connect(SottraiInMemcached, sender=Movimentomag)
+#post_delete.connect(SommaInMemcached, sender=Movimentomag)
 
 
 class MovimentoFattura(DateUtenti):
@@ -379,8 +380,8 @@ class MovimentoFatturaDettaglio(DateUtenti):
         verbose_name_plural = "Dettaglio ANTEA entrate con bolla o fattura"
         ordering=['data_di_inserimento', ]
 
-post_delete.connect(TotaliGiacenze, sender=MovimentoFatturaDettaglio)
-
+#post_save.connect(SottraiInMemcached, sender=MovimentoFatturaDettaglio)
+#post_delete.connect(SommaInMemcached, sender=MovimentoFatturaDettaglio)
 
 class MovimentoOrdine(models.Model):
     id_ordine = models.IntegerField(primary_key=True,db_column='id_ordine', verbose_name='ordine')
@@ -398,9 +399,6 @@ class MovimentoOrdine(models.Model):
         verbose_name_plural = "Magazzino ANTEA Ordini da cartella clinica"
         ordering=['id_ordine',]
 
-#da riattivare dopo test
-post_delete.connect(TotaliGiacenze, sender=MovimentoOrdine)
-post_save.connect(TotaliGiacenze, sender=MovimentoOrdine)
 
 class MovimentoOrdineDettaglio(models.Model):
     id_ordine = models.ForeignKey(MovimentoOrdine,db_column='id_ordine')
@@ -439,9 +437,10 @@ class MovimentoOrdineDettaglio(models.Model):
         return
     class Meta:
         db_table = u'movimentoordinedettaglio'
-        verbose_name_plural = "Magazzino ANTEA Dettaglio Ordini da Cart.Cl."
+        verbose_name_plural = "Magazzino ANTEA Dettaglio Ordini da Cart.Clin"
 
-post_delete.connect(TotaliGiacenze, sender=MovimentoOrdineDettaglio)
+#post_save.connect(SottraiInMemcached, sender=MovimentoOrdineDettaglio)
+#post_delete.connect(SommaInMemcached, sender=MovimentoOrdineDettaglio)
 
 
 class ArticoliNonMagazzino(models.Model):
