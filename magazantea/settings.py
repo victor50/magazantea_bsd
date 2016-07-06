@@ -82,8 +82,6 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'b(%_qs2$sk3_ht&amp;+@9+6=%t1kp$ey@f9$rrydsq&amp;r$-z)xbk%*'
 
 TEMPLATES = [
     {
@@ -92,6 +90,7 @@ TEMPLATES = [
 ],
         'APP_DIRS': True,
         'OPTIONS': {
+            'debug': DEBUG,
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
