@@ -314,7 +314,7 @@ def Articoli_Pazienti_xls(modeladmin, request, queryset):
     for q in queryset:
         lista.append(q.pk)
     lista = str(tuple(lista))
-    lista.replace(",)",")")
+    lista = lista.replace(",)",")")
 
 # Attiva un db sqlite3 in memoria
     conn=connect(':memory:')
