@@ -1,6 +1,5 @@
 DEBUG = False
 ALLOWED_HOSTS=['*']
-#TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
     'default': {

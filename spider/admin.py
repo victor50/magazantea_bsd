@@ -5,7 +5,8 @@ from spider.models import *
 
 class OrdineSpiderDettaglioInline(admin.TabularInline):
     model=OrdineSpiderDettaglio
-    raw_id_fields = ['codarticolo',]
+    list_editable = ['codarticolo',]
+    raw_id_fields = ('codarticolo',)
     readonly_fields= ['totalepezzi','collocazione']
     fields=(( 'id_ordine', 'codarticolo', 'numconfezioni', 'totalepezzi', 'collocazione','fatto'))
     extra = 1
