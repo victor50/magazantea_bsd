@@ -2,13 +2,16 @@
 
 from django.http import HttpResponse
 from datetime import datetime
+from time import strftime, localtime
 from django.core.exceptions import PermissionDenied
 from models import Articoli,MovimentoOperazione,Movimentomag,MovimentoFattura,MovimentoFatturaDettaglio,MovimentoOrdine, MovimentoOrdineDettaglio
 from re import compile,sub
 from StringIO import StringIO
 from pyExcelerator import *
 from django.db.models import Avg,Sum,Count
+from sqlite3 import *
 
+from comune.prog_servizio import EseguiQuery
 
 def export_Articoli_as_xls(modeladmin, request, queryset):
     """
@@ -294,8 +297,253 @@ def StatisticheArticoli_as_xls(modeladmin, request, queryset):
     return response
 StatisticheArticoli_as_xls.short_description = "Statistiche Articoli in uscita"
 
+def Articoli_Pazienti_xls(modeladmin, request, queryset):
+    """
+    Sommario degli articoli (in ordine alfabetico) complessivi prelevati
+    dai singoli pazienti (in ordine alfabetico) .
+    """
 
+    """
+    Mette in "lista" tutti gli id dei pazienti selezionati
+    e li trasforma in tuple (id1, id2, etc...) per poter utilizzare la lista
+    nella query
+    """
 
+    lista = []
+    for q in queryset:
+        lista.append(q.pk)
+    lista = tuple(lista)
+# Attiva un db sqlite3 in memoria
+    conn=connect(':memory:')
+    c=conn.cursor()
+    c.execute('CREATE TABLE "dato" ("cognome" text NOT NULL,"nome" text NOT NULL,"id" integer NOT NULL,"descrizione" text NOT NULL,"quant" integer NOT NULL);')
+
+    query1= """
+        SELECT a.cognome,
+            a.nome,
+            a.id,
+            c.descrizione,
+            sum(b.totalepezzi) AS totale_pezzi
+           FROM uscita_da_magazzino a,
+            movimentomag b,
+            articoli c
+          WHERE (("""
+    query2 = "a.id in "+str(lista) + ")"
+    query3 = """
+          AND (a.id_op = b.tipomov_id) AND ((b.codarticolo_id)::text = (c.codice)::text))
+          GROUP BY a.cognome, a.nome, a.id, c.descrizione
+          ORDER BY a.cognome, a.nome, a.id, c.descrizione
+          """
+
+    query = query1 + query2 + query3
+
+    ris = EseguiQuery(query)
+    if ris:
+        c.executemany('INSERT INTO dato VALUES (?,?,?,?,?)', ris)
+
+    query1= """
+        SELECT a.cognome,
+            a.nome,
+            a.id,
+            c.descrizione,
+            sum(b.totalepezzi) AS totale_pezzi
+           FROM uscita_da_spider a,
+            ordinespiderdettaglio b,
+            articoli c
+          WHERE (("""
+    query2 = "a.id in "+str(lista) + ")"
+    query3 = """
+          AND (a.id_op = b.id_ordine) AND ((b.codarticolo_id)::text = (c.codice)::text))
+          GROUP BY a.cognome, a.nome, a.id, c.descrizione
+          ORDER BY a.cognome, a.nome, a.id, c.descrizione
+          """
+    query = query1 + query2 + query3
+
+    if ris:
+        c.executemany('INSERT INTO dato VALUES (?,?,?,?,?)', ris)
+
+    """
+    Estrae tutto  registrato nel db in memoria ordinato per cognome,nome,id,descrizione
+    e lo scrive nel foglio excel
+    """
+
+    c.execute('SELECT cognome,nome,id,descrizione,sum(quant) FROM dato GROUP BY cognome,nome,id,descrizione ORDER BY cognome,nome,id,descrizione')
+    rec1 = c.fetchone()
+    resto=c.fetchall()
+    wb = Workbook()
+    ws0 = wb.add_sheet('0')
+    riga = 0
+    col = 0
+    contatore = 0
+    IntestazioneColonne = ['Cognome','Nome','Cod.Paziente','Descrizione Articolo', 'Num.Pezzi']
+    for i in IntestazioneColonne:
+        ws0.write(riga, col, i)
+        col +=1
+    riga = 1
+    paz = rec1[2]
+    col = 0
+    ws0.write(riga, col, rec1[0])
+    col = 1
+    ws0.write(riga,col,rec1[1])
+    col = 2
+    ws0.write(riga,col,rec1[2])
+    col = 3
+    ws0.write(riga,col,rec1[3])
+    col = 4
+    ws0.write(riga,col,rec1[4])
+    contatore +=1
+    riga +=1
+    for q in resto:
+        if q[2] <> paz:
+            contatore = 0
+            paz = q[2]
+        if contatore == 0:
+            col = 0
+            ws0.write(riga, col, q[0])
+            col = 1
+            ws0.write(riga,col,q[1])
+            col = 2
+            ws0.write(riga,col,q[2])
+            col = 3
+            ws0.write(riga,col,q[3])
+            col = 4
+            ws0.write(riga,col,q[4])
+            contatore +=1
+            riga +=1
+        else:
+            col = 3
+            ws0.write(riga,col,q[3])
+            col = 4
+            ws0.write(riga,col,q[4])
+            contatore +=1
+            riga +=1
+    f = StringIO()
+    wb.save(f)
+    f.seek(0)
+    response = HttpResponse(f.read(), content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=ArticolixPazienti_'+strftime("%Y-%m-%d_%H%M%S", localtime())+'.xls'
+    f.close()
+    conn.close()
+    return response
+Articoli_Pazienti_xls.short_description = "Articoli forniti ai pazienti SELEZIONATI"
+
+def Articoli_Pazienti_tutti_xls(modeladmin, request, queryset):
+    """
+    Sommario degli articoli (in ordine alfabetico) complessivi prelevati
+    dai singoli pazienti (in ordine alfabetico) .
+    """
+
+    """
+    Mette in "queryset" tutti gli id dei pazienti
+    """
+    from magazzino.models import Pazienti
+    queryset = Pazienti.objects.all()
+#
+# Attiva un db sqlite3 in memoria
+#
+    conn=connect(':memory:')
+    c=conn.cursor()
+    c.execute('CREATE TABLE "dato" ("cognome" text NOT NULL,"nome" text NOT NULL,"id" integer NOT NULL,"descrizione" text NOT NULL,"quant" integer NOT NULL);')
+
+    query= """
+        SELECT a.cognome,
+            a.nome,
+            a.id,
+            c.descrizione,
+            sum(b.totalepezzi) AS totale_pezzi
+           FROM uscita_da_magazzino a,
+            movimentomag b,
+            articoli c
+          WHERE ((a.id_op = b.tipomov_id) AND ((b.codarticolo_id)::text = (c.codice)::text))
+          GROUP BY a.cognome, a.nome, a.id, c.descrizione
+          ORDER BY a.cognome, a.nome, a.id, c.descrizione
+          """
+
+    ris = EseguiQuery(query)
+    if ris:
+        c.executemany('INSERT INTO dato VALUES (?,?,?,?,?)', ris)
+
+    query= """
+        SELECT a.cognome,
+            a.nome,
+            a.id,
+            c.descrizione,
+            sum(b.totalepezzi) AS totale_pezzi
+           FROM uscita_da_spider a,
+            ordinespiderdettaglio b,
+            articoli c
+          WHERE (((a.id_op = b.id_ordine) AND ((b.codarticolo_id)::text = (c.codice)::text))
+          GROUP BY a.cognome, a.nome, a.id, c.descrizione
+          ORDER BY a.cognome, a.nome, a.id, c.descrizione
+          """
+
+    if ris:
+        c.executemany('INSERT INTO dato VALUES (?,?,?,?,?)', ris)
+
+    """
+    Estrae tutto  registrato nel db in memoria ordinato per cognome,nome,id,descrizione
+    e lo scrive nel foglio excel
+    """
+
+    c.execute('SELECT cognome,nome,id,descrizione,sum(quant) FROM dato GROUP BY cognome,nome,id,descrizione ORDER BY cognome,nome,id,descrizione')
+    rec1 = c.fetchone()
+    resto=c.fetchall()
+    wb = Workbook()
+    ws0 = wb.add_sheet('0')
+    riga = 0
+    col = 0
+    contatore = 0
+    IntestazioneColonne = ['Cognome','Nome','Cod.Paziente','Descrizione Articolo', 'Num.Pezzi']
+    for i in IntestazioneColonne:
+        ws0.write(riga, col, i)
+        col +=1
+    riga = 1
+    paz = rec1[2]
+    col = 0
+    ws0.write(riga, col, rec1[0])
+    col = 1
+    ws0.write(riga,col,rec1[1])
+    col = 2
+    ws0.write(riga,col,rec1[2])
+    col = 3
+    ws0.write(riga,col,rec1[3])
+    col = 4
+    ws0.write(riga,col,rec1[4])
+    contatore +=1
+    riga +=1
+    for q in resto:
+        if q[2] <> paz:
+            contatore = 0
+            paz = q[2]
+        if contatore == 0:
+            col = 0
+            ws0.write(riga, col, q[0])
+            col = 1
+            ws0.write(riga,col,q[1])
+            col = 2
+            ws0.write(riga,col,q[2])
+            col = 3
+            ws0.write(riga,col,q[3])
+            col = 4
+            ws0.write(riga,col,q[4])
+            contatore +=1
+            riga +=1
+        else:
+            col = 3
+            ws0.write(riga,col,q[3])
+            col = 4
+            ws0.write(riga,col,q[4])
+            contatore +=1
+            riga +=1
+    f = StringIO()
+    wb.save(f)
+    f.seek(0)
+    response = HttpResponse(f.read(), content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=ArticolixPazienti_'+strftime("%Y-%m-%d_%H%M%S", localtime())+'.xls'
+    f.close()
+    conn.close()
+    return response
+Articoli_Pazienti_tutti_xls.short_description = "Articoli forniti a TUTTI i pazienti"
 def Stampa_Rapporto(modeladmin, request, queryset):
     from django.http import HttpResponse
     from magazzino.models import Movimentomag,Articoli
@@ -565,3 +813,4 @@ def Stampa_Rapp_Fattura(modeladmin, request, queryset):
     r.write("</div>")
     return r
 Stampa_Rapp_Fattura.short_description = "Prepara stampa rapporto selezionati"
+

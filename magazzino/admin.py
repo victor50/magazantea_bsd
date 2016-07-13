@@ -138,6 +138,7 @@ class PazientiOption(SalvaModello):
             ('quartiere','municipio','asl'),
             ('cessato','data_chiusura', 'inhospice','rifantea','dotato_kit'))
     order_by= ['cognome', 'nome']
+    actions=[Articoli_Pazienti_xls, Articoli_Pazienti_tutti_xls,]
     save_on_top=True
 #    def queryset(self, request):
 #        """Mostra solo record pazienti non cessati."""
