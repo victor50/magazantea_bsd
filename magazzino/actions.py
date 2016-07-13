@@ -305,14 +305,17 @@ def Articoli_Pazienti_xls(modeladmin, request, queryset):
 
     """
     Mette in "lista" tutti gli id dei pazienti selezionati
-    e li trasforma in tuple (id1, id2, etc...) per poter utilizzare la lista
-    nella query
+    e li trasforma in tuple (id1, id2, etc...) ed in stringa
+    per poter utilizzare la lista nella query
+    Inoltre, elimina dalla tuple l'eventuale fine in ",)" (es. '(17534,)')
     """
 
     lista = []
     for q in queryset:
         lista.append(q.pk)
-    lista = tuple(lista)
+    lista = str(tuple(lista))
+    lista.replace(",)",")")
+
 # Attiva un db sqlite3 in memoria
     conn=connect(':memory:')
     c=conn.cursor()
@@ -328,7 +331,7 @@ def Articoli_Pazienti_xls(modeladmin, request, queryset):
             movimentomag b,
             articoli c
           WHERE (("""
-    query2 = "a.id in "+str(lista) + ")"
+    query2 = "a.id in "+ lista + ")"
     query3 = """
           AND (a.id_op = b.tipomov_id) AND ((b.codarticolo_id)::text = (c.codice)::text))
           GROUP BY a.cognome, a.nome, a.id, c.descrizione
@@ -351,7 +354,7 @@ def Articoli_Pazienti_xls(modeladmin, request, queryset):
             ordinespiderdettaglio b,
             articoli c
           WHERE (("""
-    query2 = "a.id in "+str(lista) + ")"
+    query2 = "a.id in "+ lista + ")"
     query3 = """
           AND (a.id_op = b.id_ordine) AND ((b.codarticolo_id)::text = (c.codice)::text))
           GROUP BY a.cognome, a.nome, a.id, c.descrizione
